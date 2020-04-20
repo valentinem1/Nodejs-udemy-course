@@ -2,20 +2,46 @@ const fs = require('fs')
 const http = require('http')
 const url = require('url')
 
+//////// REPLACE TEMPLATE PLACEHOLDER BY THE ITEM DATA ////////
+replaceTemplate = (template, product) => {
+    let cardOutput = template.replace(/{%IMAGE%}/g, product.image)
+    cardOutput = cardOutput.replace(/{%PRODUCTNAME%}/g, product.productName)
+    cardOutput = cardOutput.replace(/{%FROM%}/g, product.from)
+    cardOutput = cardOutput.replace(/{%NUTRIENTS%}/g, product.nutrients)
+    cardOutput = cardOutput.replace(/{%QUANTITY%}/g, product.quantity)
+    cardOutput = cardOutput.replace(/{%PRICE%}/g, product.price)
+    cardOutput = cardOutput.replace(/{%DESCRIPTION%}/g, product.description)
+    cardOutput = cardOutput.replace(/{%ID%}/g, product.id)
+
+    if(!product.organic) cardOutput = cardOutput.replace(/{%NOT_ORGANIC%}/g, 'not-organic')
+    return cardOutput
+}
 
 //////// PARSING DATA INTO JAVASCRIPT ONLY ONCE THE APP IS LAUNCHED ////////
 const data = fs.readFileSync('./dev-data/data.json', 'utf-8')
 const dataObj = JSON.parse(data)
 
+const tempOverview = fs.readFileSync('./templates/template-overview.html', 'utf-8')
+const tempProduct = fs.readFileSync('./templates/template-product.html', 'utf-8')
+const tempCard = fs.readFileSync('./templates/template-card.html', 'utf-8')
 
 //////// SERVER ////////
 const server = http.createServer((request, response) => {
     const pathName = request.url
 
+//////// OVERVIEW PAGE RESPONSE ////////
     if(pathName === '/' || pathName === '/overview'){
-        response.end("Hello from Overview!")
+        response.writeHead(200, { 'content-type': 'text/html'})
+
+        const cards = dataObj.map(product => replaceTemplate(tempCard, product)).join('')
+        const output = tempOverview.replace('{%PRODUCT_CARDS%}', cards)
+
+        response.end(output)
+
+//////// PRODUCT PAGE RESPONSE ////////
     }else if(pathName === '/products'){
         response.end("Hello from the Products!")
+
 //////// SENDIND RESPONSE BACK FOR API DATA ////////
     }else if (pathName === '/api'){
         response.writeHead(200, {
