@@ -2,7 +2,7 @@ const fs = require('fs')
 const http = require('http')
 const url = require('url')
 
-//////// REPLACE TEMPLATE PLACEHOLDER BY THE ITEM DATA ////////
+//////// REPLACE TEMPLATE PLACEHOLDER BY THE ITEM'S DATA ////////
 replaceTemplate = (template, product) => {
     let cardOutput = template.replace(/{%IMAGE%}/g, product.image)
     cardOutput = cardOutput.replace(/{%PRODUCTNAME%}/g, product.productName)
@@ -17,20 +17,22 @@ replaceTemplate = (template, product) => {
     return cardOutput
 }
 
-//////// PARSING DATA INTO JAVASCRIPT ONLY ONCE THE APP IS LAUNCHED ////////
-const data = fs.readFileSync('./dev-data/data.json', 'utf-8')
-const dataObj = JSON.parse(data)
-
+//////// GET TEMPLATES FILES FROM THE TEMPLATE FOLDER ////////
 const tempOverview = fs.readFileSync('./templates/template-overview.html', 'utf-8')
 const tempProduct = fs.readFileSync('./templates/template-product.html', 'utf-8')
 const tempCard = fs.readFileSync('./templates/template-card.html', 'utf-8')
 
+//////// PARSING DATA INTO JAVASCRIPT ONLY ONCE THE APP IS LAUNCHED ////////
+const data = fs.readFileSync('./dev-data/data.json', 'utf-8')
+const dataObj = JSON.parse(data)
+
 //////// SERVER ////////
 const server = http.createServer((request, response) => {
-    const pathName = request.url
+    const { query, pathname } = url.parse(request.url, true)
 
 //////// OVERVIEW PAGE RESPONSE ////////
-    if(pathName === '/' || pathName === '/overview'){
+
+    if(pathname === '/' || pathname === '/overview'){
         response.writeHead(200, { 'content-type': 'text/html'})
 
         const cards = dataObj.map(product => replaceTemplate(tempCard, product)).join('')
@@ -39,11 +41,18 @@ const server = http.createServer((request, response) => {
         response.end(output)
 
 //////// PRODUCT PAGE RESPONSE ////////
-    }else if(pathName === '/products'){
-        response.end("Hello from the Products!")
+
+    }else if(pathname === '/product'){
+        response.writeHead(200, { 'content-type': 'text/html' })
+        
+        const product = dataObj[query.id]
+        const output = replaceTemplate(tempProduct, product)
+
+        response.end(output)
 
 //////// SENDIND RESPONSE BACK FOR API DATA ////////
-    }else if (pathName === '/api'){
+
+    }else if (pathname === '/api'){
         response.writeHead(200, {
             'Content-Type': 'application/json'
         })
