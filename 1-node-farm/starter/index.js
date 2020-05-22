@@ -2,20 +2,9 @@ const fs = require('fs')
 const http = require('http')
 const url = require('url')
 
-//////// REPLACE TEMPLATE PLACEHOLDER BY THE ITEM'S DATA ////////
-replaceTemplate = (template, product) => {
-    let cardOutput = template.replace(/{%IMAGE%}/g, product.image)
-    cardOutput = cardOutput.replace(/{%PRODUCTNAME%}/g, product.productName)
-    cardOutput = cardOutput.replace(/{%FROM%}/g, product.from)
-    cardOutput = cardOutput.replace(/{%NUTRIENTS%}/g, product.nutrients)
-    cardOutput = cardOutput.replace(/{%QUANTITY%}/g, product.quantity)
-    cardOutput = cardOutput.replace(/{%PRICE%}/g, product.price)
-    cardOutput = cardOutput.replace(/{%DESCRIPTION%}/g, product.description)
-    cardOutput = cardOutput.replace(/{%ID%}/g, product.id)
+const slugify = require('slugify')
 
-    if(!product.organic) cardOutput = cardOutput.replace(/{%NOT_ORGANIC%}/g, 'not-organic')
-    return cardOutput
-}
+const replaceTemplate = require('./modules/replaceTemplate')
 
 //////// GET TEMPLATES FILES FROM THE TEMPLATE FOLDER ////////
 const tempOverview = fs.readFileSync('./templates/template-overview.html', 'utf-8')
@@ -26,10 +15,14 @@ const tempCard = fs.readFileSync('./templates/template-card.html', 'utf-8')
 const data = fs.readFileSync('./dev-data/data.json', 'utf-8')
 const dataObj = JSON.parse(data)
 
+const slugs = dataObj.map(product => slugify(product.productName, { 
+    replacement: '_', 
+    lower: true 
+}))
+
 //////// SERVER ////////
 const server = http.createServer((request, response) => {
     const { query, pathname } = url.parse(request.url, true)
-
 //////// OVERVIEW PAGE RESPONSE ////////
 
     if(pathname === '/' || pathname === '/overview'){
