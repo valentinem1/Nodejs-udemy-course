@@ -8,11 +8,29 @@ const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours-simple.json'));
 
 // GET request
 app.get('/api/v1/tours', (req, res) => {
-    console.log(res);
     res.status(200).json({
         status: 'success',
         data: {
             tours
+        }
+    });
+});
+
+// GET one tour request
+app.get('/api/v1/tours/:id', (req, res) => {
+    const tour = tours.find(tour => tour.id === parseInt(req.params.id));
+        
+    if(!tour){
+        return res.status(400).json({
+            status: "fail",
+            message: "Invalid ID"
+        });
+    }
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            tour
         }
     });
 });
