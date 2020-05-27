@@ -4,10 +4,21 @@ const fs = require('fs');
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+    console.log('middleware function!');
+    next();
+});
+
+app.use((req, res, next) => {
+    req.requestTime = new Date().toISOString();
+    next();
+})
+
 const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours-simple.json'));
 
 const getAllTours = (req, res) => {
     res.status(200).json({
+        requestedAt: req.requestTime,
         status: 'success',
         data: {
             tours
