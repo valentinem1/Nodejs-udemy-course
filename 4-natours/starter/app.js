@@ -53,12 +53,17 @@ app.post('/api/v1/tours', (req, res) => {
 
 // PATCH request
 app.patch('/api/v1/tours/:id', (req, res) => {
-    // console.log(req.body.name);
-
     const tour = tours.find(tour => tour.id === parseInt(req.params.id));
 
     const updatedTour = {...tour, name: req.body.name};
     const updatedTours = tours.map(tour => tour.id === parseInt(req.params.id) ? updatedTour : tour);
+
+    if(!tour){
+        return res.status(400).json({
+            status: "fail",
+            message: "Invalid ID"
+        });
+    };
 
     fs.writeFile('./dev-data/data/tours-simple.json', JSON.stringify(updatedTours), err => {
         res.status(200).json({
@@ -68,7 +73,28 @@ app.patch('/api/v1/tours/:id', (req, res) => {
             }
         });
     });
-})
+});
+
+// DELETE request
+app.delete('/api/v1/tours/:id', (req, res) => {
+    const updatedTours = tours.filter(tour => tour.id !== parseInt(req.params.id));
+
+    if(parseInt(req.params.id) > tours.length){
+        return res.status(400).json({
+            status: "fail",
+            message: "Invalid ID"
+        });
+    };
+
+    fs.writeFile('./dev-data/data/tours-simple.json', JSON.stringify(updatedTours), err => {
+        res.status(200).json({
+            status: 'success',
+            data: {
+                updatedTours
+            }
+        });
+    });
+});
 
 const port = 3000;
 app.listen(port, () => {
