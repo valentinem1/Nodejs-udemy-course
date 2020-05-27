@@ -1,6 +1,12 @@
 const express = require('express');
-const app = express();
 const fs = require('fs');
+const morgan = require('morgan');
+
+const app = express();
+
+
+// MIDDLEWARES
+app.use(morgan('dev'));
 
 app.use(express.json());
 
@@ -16,6 +22,9 @@ app.use((req, res, next) => {
 
 const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours-simple.json'));
 
+// ROUTE HANDLERS
+
+// TOURS
 const getAllTours = (req, res) => {
     res.status(200).json({
         requestedAt: req.requestTime,
@@ -100,26 +109,68 @@ const deleteTour = (req, res) => {
     });
 }
 
-// // GET request
-// app.get('/api/v1/tours', getAllTours);
-// // GET one tour request
-// app.get('/api/v1/tours/:id', getTour);
-// // POST request
-// app.post('/api/v1/tours', createTour);
-// // PATCH request
-// app.patch('/api/v1/tours/:id', updateTour);
-// // DELETE request
-// app.delete('/api/v1/tours/:id', deleteTour);
+// USERS
+const getAllUsers = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'route not defined yet'
+    });
+};
 
-// GET/POST requests
-app.route('/api/v1/tours')
+const createUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'route not defined yet'
+    });
+};
+
+const getUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'route not defined yet'
+    });
+};
+
+const updateUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'route not defined yet'
+    });
+};
+
+const deleteUser = (req, res) => {
+    res.status(500).json({
+        status: 'error',
+        message: 'route not defined yet'
+    });
+};
+
+// ROUTES
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
+
+// TOURS
+tourRouter.route('/')
     .get(getAllTours)
     .post(createTour)
-// GET/PATCH/DELETE request
-app.route('/api/v1/tours/:id')
+
+tourRouter.route('/:id')
     .get(getTour)
     .patch(updateTour)
     .delete(deleteTour)
+
+// USERS
+userRouter.route('/')
+    .get(getAllUsers)
+    .post(createUser)
+
+userRouter.route('/:id')
+    .get(getUser)
+    .patch(updateUser)
+    .delete(deleteUser)
 
 // SERVER
 const port = 3000;
