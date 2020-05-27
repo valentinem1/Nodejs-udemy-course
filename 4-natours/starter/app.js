@@ -6,18 +6,16 @@ app.use(express.json());
 
 const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours-simple.json'));
 
-// GET request
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
     res.status(200).json({
         status: 'success',
         data: {
             tours
         }
     });
-});
+}
 
-// GET one tour request
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
     const tour = tours.find(tour => tour.id === parseInt(req.params.id));
         
     if(!tour){
@@ -33,10 +31,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
             tour
         }
     });
-});
+}
 
-// POST request
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
     const newId = tours[tours.length -1].id + 1;
     const newTour = {...req.body, id: newId};
 
@@ -49,10 +46,9 @@ app.post('/api/v1/tours', (req, res) => {
             }
         });
     });
-})
+}
 
-// PATCH request
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
     const tour = tours.find(tour => tour.id === parseInt(req.params.id));
 
     const updatedTour = {...tour, name: req.body.name};
@@ -73,10 +69,9 @@ app.patch('/api/v1/tours/:id', (req, res) => {
             }
         });
     });
-});
+}
 
-// DELETE request
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
     const updatedTours = tours.filter(tour => tour.id !== parseInt(req.params.id));
 
     if(parseInt(req.params.id) > tours.length){
@@ -87,25 +82,36 @@ app.delete('/api/v1/tours/:id', (req, res) => {
     };
 
     fs.writeFile('./dev-data/data/tours-simple.json', JSON.stringify(updatedTours), err => {
-        res.status(200).json({
+        res.status(204).json({
             status: 'success',
-            data: {
-                updatedTours
-            }
+            data: null
         });
     });
-});
+}
 
+// // GET request
+// app.get('/api/v1/tours', getAllTours);
+// // GET one tour request
+// app.get('/api/v1/tours/:id', getTour);
+// // POST request
+// app.post('/api/v1/tours', createTour);
+// // PATCH request
+// app.patch('/api/v1/tours/:id', updateTour);
+// // DELETE request
+// app.delete('/api/v1/tours/:id', deleteTour);
+
+// GET/POST requests
+app.route('/api/v1/tours')
+    .get(getAllTours)
+    .post(createTour)
+// GET/PATCH/DELETE request
+app.route('/api/v1/tours/:id')
+    .get(getTour)
+    .patch(updateTour)
+    .delete(deleteTour)
+
+// SERVER
 const port = 3000;
 app.listen(port, () => {
     console.log(`App running on port ${port}...`);
 });
-
-
-// app.get('/', (req, res) => {
-//     res.status(200).json({ message: 'Hello from the server!', app: 'Natours' });
-// });
-
-// app.post('/', (req, res) => {
-//     res.send('You can now post to this endpoint.')
-// });
