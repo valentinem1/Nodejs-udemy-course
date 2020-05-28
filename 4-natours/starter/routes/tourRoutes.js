@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAllTours, getTour, createTour, updateTour, deleteTour, checkId } = require('../controllers/tourController')
+const { getAllTours, getTour, createTour, updateTour, deleteTour, checkId, checkBody } = require('../controllers/tourController')
 const router = express.Router();
 
 // param middleware to check if id is valid before hitting any routes
@@ -8,7 +8,7 @@ router.param('id', checkId);
 
 router.route('/')
     .get(getAllTours)
-    .post(createTour)
+    .post(checkBody, createTour)
 
 router.route('/:id')
     .get(getTour)

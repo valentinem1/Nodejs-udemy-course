@@ -5,16 +5,26 @@ const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours-simple.json'));
 // param middleware to check if id is valid before hitting any routes
 // val give us the value of the id
 exports.checkId = (req, res, next, val) => {
-    console.log(`This is the id: ${val}`);
+    // console.log(`This is the id: ${val}`);
 
-    if(parseInt(req.params.id) > tours.length){
+    if(parseInt(val) > tours.length){
         return res.status(400).json({
             status: "fail",
             message: "Invalid ID"
         });
     };
     next();
-}
+};
+
+exports.checkBody = (req, res, next) => {
+    if(!req.body.name || !req.body.price){
+        res.status(400).json({
+            status: "fail",
+            message: "Missing name or price"
+        });
+    };
+    next();
+};
 
 exports.getAllTours = (req, res) => {
     res.status(200).json({
@@ -24,7 +34,7 @@ exports.getAllTours = (req, res) => {
             tours
         }
     });
-}
+};
 
 exports.getTour = (req, res) => {
     const tour = tours.find(tour => tour.id === parseInt(req.params.id));
@@ -35,7 +45,7 @@ exports.getTour = (req, res) => {
             tour
         }
     });
-}
+};
 
 exports.createTour = (req, res) => {
     const newId = tours[tours.length -1].id + 1;
@@ -50,7 +60,7 @@ exports.createTour = (req, res) => {
             }
         });
     });
-}
+};
 
 exports.updateTour = (req, res) => {
     const tour = tours.find(tour => tour.id === parseInt(req.params.id));
@@ -66,7 +76,7 @@ exports.updateTour = (req, res) => {
             }
         });
     });
-}
+};
 
 exports.deleteTour = (req, res) => {
     const updatedTours = tours.filter(tour => tour.id !== parseInt(req.params.id));
@@ -77,4 +87,4 @@ exports.deleteTour = (req, res) => {
             data: null
         });
     });
-}
+};
