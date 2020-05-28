@@ -16,6 +16,7 @@ exports.checkId = (req, res, next, val) => {
     next();
 };
 
+// middleware to check if the body of th request includes the name or price before creating a tour 
 exports.checkBody = (req, res, next) => {
     if(!req.body.name || !req.body.price){
         res.status(400).json({
