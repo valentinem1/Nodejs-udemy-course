@@ -15,5 +15,7 @@
     "mongoose": "^5.9.16",
     "morgan": "^1.10.0"
   },
-  "devDependencies": {}
+  "engines": {
+    "node": ">=10.0.0"
+  }
 }
