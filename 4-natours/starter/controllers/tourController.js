@@ -14,10 +14,19 @@ exports.getAllTours = async (req, res) => {
         let queryStr = JSON.stringify(queryObj);
         queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
         // Mongodb query
-        const query = Tour.find(JSON.parse(queryStr));
+        // console.log(JSON.parse(queryStr));
+        let query = Tour.find(JSON.parse(queryStr));
 
         // mongoose method to filter the query
         // const tours = await Tour.find().where('duration').equals(5).where('duration').equals('easy');
+        // console.log(req.query.sort);
+        // 3) SORTING
+        if(req.query.sort){
+            const sortBy = req.query.sort.split(',').join(' ')
+            query = query.sort(sortBy);
+        }else{
+            query = query.sort('createdAt');
+        };
     
         // EXECUTE THE QUERY
         const tours = await query;
