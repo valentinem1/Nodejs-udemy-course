@@ -3,17 +3,19 @@ const Tour = require('../models/tourModel');
 exports.getAllTours = async (req, res) => {
     try{
         // BUILD THE QUERY
-
-        // spread the query to create a new object that can modify
+        // 1) FILTERING
+        // spread the query to create a new object that can be modify
         const queryObj = { ...req.query };
         // save different query types that we then iterate over to delete them from the query url.
         const excludedFields = ['page', 'sort', 'limit', 'field'];
         excludedFields.forEach(el => delete queryObj[el]);
 
-        // console.log(req.query, queryObj);
-
+        // 2) ADVANCED FILTERING
+        let queryStr = JSON.stringify(queryObj);
+        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
         // Mongodb query
-        const query = Tour.find(queryObj);
+        const query = Tour.find(JSON.parse(queryStr));
+
         // mongoose method to filter the query
         // const tours = await Tour.find().where('duration').equals(5).where('duration').equals('easy');
     
