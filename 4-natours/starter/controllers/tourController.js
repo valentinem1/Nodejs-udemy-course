@@ -24,10 +24,19 @@ exports.getAllTours = async (req, res) => {
         if(req.query.sort){
             const sortBy = req.query.sort.split(',').join(' ')
             query = query.sort(sortBy);
-        }else{
-            query = query.sort('createdAt');
+        }
+        else{
+            query = query.sort('-createdAt');
         };
-    
+
+        // 4) FIELD LIMITING
+        if(req.query.field){
+            const fields = req.query.field.split(',').join(' ');
+            query = query.select(fields)
+        }else{
+            query = query.select('-__v');
+        };
+
         // EXECUTE THE QUERY
         const tours = await query;
 

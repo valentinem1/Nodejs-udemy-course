@@ -50,7 +50,9 @@ const tourSchema = new mongoose.Schema({
     images: [String],
     createdAt: {
         type: Date,
-        default: Date.now()
+        default: Date.now(),
+        // doesn't the createdAt back to the client like Active Model Serializer does in Ruby
+        select: false
     },
     startDates: [Date]
 });
