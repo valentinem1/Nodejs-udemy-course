@@ -1,4 +1,5 @@
 const Tour = require('../models/tourModel');
+const ApiFeatures = require('../utils/apiFeatures');
 
 // middleware to filter the query to be limited to 5 and sort it for ratingAverage and price for the alias route
 // hits the middleware before the getAllTours controller action
@@ -11,59 +12,9 @@ exports.topTours = (req, res, next) => {
 
 exports.getAllTours = async (req, res) => {
     try{
-        // BUILD THE QUERY
-        // 1) FILTERING
-        // spread the query to create a new object that can be modify
-        const queryObj = { ...req.query };
-        // save different query types that we then iterate over to delete them from the query url.
-        const excludedFields = ['page', 'sort', 'limit', 'field'];
-        excludedFields.forEach(el => delete queryObj[el]);
-
-        // 2) ADVANCED FILTERING
-        let queryStr = JSON.stringify(queryObj);
-        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-        // Mongodb query
-        // console.log(JSON.parse(queryStr));
-        let query = Tour.find(JSON.parse(queryStr));
-
-        // mongoose method to filter the query
-        // const tours = await Tour.find().where('duration').equals(5).where('duration').equals('easy');
-        // console.log(req.query.sort);
-        // 3) SORTING
-        if(req.query.sort){
-            const sortBy = req.query.sort.split(',').join(' ')
-            query = query.sort(sortBy);
-        }
-        else{
-            query = query.sort('-createdAt');
-        };
-
-        // 4) FIELD LIMITING
-        if(req.query.field){
-            const fields = req.query.field.split(',').join(' ');
-            query = query.select(fields)
-        }else{
-            query = query.select('-__v');
-        };
-
-        // 5) PAGINATION
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 100;
-        const skip = (page - 1) * limit;
-
-        query = query.skip(skip).limit(limit);
-
-        // if query contains a page query
-        // count the number of documents/tours in the DB
-        // check if the skip number is bigger or equal to the number of documents/tours
-        // if yes throw and error which will fall directly in the catch block below.
-        if(req.query.page){
-            const numTours = await Tour.countDocuments();
-            if(skip >= numTours) throw new Error('This page does not exist');
-        }
-
         // EXECUTE THE QUERY
-        const tours = await query;
+        const features = new ApiFeatures(Tour.find(), req.query).filter().sort().limitFields().paginate();
+        const tours = await features.query;
 
         // SEND RESPONSE
         res.status(200).json({
