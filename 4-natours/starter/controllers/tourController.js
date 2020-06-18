@@ -1,5 +1,14 @@
 const Tour = require('../models/tourModel');
 
+// middleware to filter the query to be limited to 5 and sort it for ratingAverage and price for the alias route
+// hits the middleware before the getAllTours controller action
+exports.topTours = (req, res, next) => {
+    req.query.limit = '5';
+    req.query.sort = '-ratingsAverage,price';
+    req.query.field = 'name, price, ratingsAverage, summary, difficulty';
+    next();
+}
+
 exports.getAllTours = async (req, res) => {
     try{
         // BUILD THE QUERY
